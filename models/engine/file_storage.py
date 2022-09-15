@@ -44,6 +44,7 @@ class FileStorage:
                 if v is obj:
                     tmp = k
             FileStorage.__objects.pop(tmp)
+            self.save()
 
     def reload(self):
         """Loads storage dictionary from file"""
