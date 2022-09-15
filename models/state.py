@@ -11,22 +11,15 @@ class State(BaseModel, Base):
 
     __tablename__ = "states"
 
-    if getenv("HBNB_TYPE_STORAGE") == "db":
-        name = Column(String(128), nullable=False)
-        cities = relationship("City", backref="state",
+    name = Column(String(128), nullable=False)
+    cities = relationship("City", backref="state",
                               cascade="all, delete, delete-orphan")
-    else:
-        name = ""
-
+    if getenv("HBNB_TYPE_STORAGE") != "db":
         @property
         def cities(self):
-            '''
-                Return list of city instances if City.state_id==current
-                State.id
-                FileStorage relationship between State and City
-            '''
-            list_cities = []
-            for city in models.storage.all("City").values():
+            """Get a list of all related City objects."""
+            city_list = []
+            for city in list(models.storage.all(City).values()):
                 if city.state_id == self.id:
-                    list_cities.append(city)
-            return list_cities
+                    city_list.append(city)
+            return city_list
