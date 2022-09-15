@@ -60,4 +60,4 @@ class FileStorage:
         if (obj is None):
             return
         if (obj):
-            del(obj)
+            delete(obj)
