@@ -23,7 +23,7 @@ class FileStorage:
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
-        #self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
+
         key = str(obj.__class__.__name__) + "." + str(obj.id)
         value_dict = obj
         FileStorage.__objects[key] = value_dict
@@ -69,7 +69,7 @@ class FileStorage:
                     self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass"""
-            
+
         try:
             with open(FileStorage.__file_path, encoding="UTF8") as fd:
                 FileStorage.__objects = json.load(fd)
@@ -83,4 +83,3 @@ class FileStorage:
     def close(self):
         """Handles storage close"""
         self.reload()
-        
