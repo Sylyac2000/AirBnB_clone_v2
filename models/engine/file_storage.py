@@ -13,7 +13,6 @@ class FileStorage:
         """Returns a dictionary of models currently in storage"""
         if cls is not None:
             obj_dict = {}
-            print(FileStorage.__objects)
             for k, v in FileStorage.__objects.items():
                 if k.startswith(cls.__name__):
                     obj_dict.update({k: v})
