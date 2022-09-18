@@ -30,19 +30,19 @@ class FileStorage:
 
     def save(self):
         """Saves storage dictionary to file"""
-        with open(FileStorage.__file_path, 'w') as f:
+        with open(FileStorage.__file_path, 'w') as thefilename:
             temp = {}
             temp.update(FileStorage.__objects)
             for key, val in temp.items():
                 temp[key] = val.to_dict()
-            json.dump(temp, f, sort_keys=True, indent=4)
+            json.dump(temp, thefilename, sort_keys=True, indent=4)
 
     def delete(self, obj=None):
         """
             Deletes the object obj if obj is in __objects
         """
         if obj is not None:
-            key = obj.__class__.__name__ + '.' + obj.id
+            key = str(obj.__class__.__name__) + '.' + str(obj.id)
             if key in self.__objects:
                 del self.__objects[key]
 
