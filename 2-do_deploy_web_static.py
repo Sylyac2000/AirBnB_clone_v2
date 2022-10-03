@@ -31,5 +31,5 @@ def do_deploy(archive_path):
         run("rm -rf {}".format(symbolic_link))
         run("ln -s {} {}".format(path_no_extension, symbolic_link))
         return True
-    except FileNotFoundError:
+    except:
         return False
