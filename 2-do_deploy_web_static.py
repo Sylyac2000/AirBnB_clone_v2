@@ -20,16 +20,16 @@ def do_deploy(archive_path):
     try:
         thefilename = archive_path.split("/")[-1]
         no_extension = thefilename.split(".")[0]
-        path_no_extension = "/data/web_static/releases/{}/".format(no_extension)
+        path_no_exten = "/data/web_static/releases/{}/".format(no_exten)
         symbolic_link = "/data/web_static/current"
         put(archive_path, "/tmp/")
-        run("mkdir -p {}".format(path_no_extension))
-        run("tar -xzf /tmp/{} -C {}".format(thefilename, path_no_extension))
+        run("mkdir -p {}".format(path_no_exten))
+        run("tar -xzf /tmp/{} -C {}".format(thefilename, path_no_exten))
         run("rm /tmp/{}".format(thefilename))
-        run("mv {}web_static/* {}".format(path_no_extension, path_no_extension))
-        run("rm -rf {}web_static".format(path_no_extension))
+        run("mv {}web_static/* {}".format(path_no_exten, path_no_exten))
+        run("rm -rf {}web_static".format(path_no_exten))
         run("rm -rf {}".format(symbolic_link))
-        run("ln -s {} {}".format(path_no_extension, symbolic_link))
+        run("ln -s {} {}".format(path_no_exten, symbolic_link))
         return True
-    except:
+    except Exception:
         return False

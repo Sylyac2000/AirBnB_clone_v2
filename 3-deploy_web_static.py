@@ -18,7 +18,7 @@ def do_pack():
         filename = "versions/web_static_{}.tgz".format(thetime)
         local("tar -cvzf {} web_static/".format(filename))
         return filename
-    except:
+    except Exception:
         return None
 
 
@@ -42,7 +42,7 @@ def do_deploy(archive_path):
         run("rm -rf {}".format(symbolic_link))
         run("ln -s {} {}".format(path_no_exten, symbolic_link))
         return True
-    except:
+    except Exception:
         return False
 
 
