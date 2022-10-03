@@ -6,6 +6,7 @@ Usage:
 """
 from fabric.api import env, put, run
 import os.path
+from time import strftime
 env.hosts = ['3.238.247.215', '35.173.50.224']
 
 
