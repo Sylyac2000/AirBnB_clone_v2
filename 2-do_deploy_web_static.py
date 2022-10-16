@@ -9,7 +9,9 @@ Usage:
 from fabric.api import env, put, run
 import os.path
 env.hosts = ['3.238.247.215', '35.173.50.224']
-
+env.identity = '~/.ssh/id_rsa'
+env.user = 'ubuntu'
+env.password = None
 
 def do_deploy(archive_path):
     """
@@ -25,7 +27,7 @@ def do_deploy(archive_path):
         put(archive_path, "/tmp/")
         run("mkdir -p {}".format(path_no_exten))
         run("tar -xzf /tmp/{} -C {}".format(thefilename, path_no_exten))
-        run("rm /tmp/{}".format(thefilename))
+        #run("rm /tmp/{}".format(thefilename))
         run("mv {}web_static/* {}".format(path_no_exten, path_no_exten))
         run("rm -rf {}web_static".format(path_no_exten))
         run("rm -rf {}".format(symbolic_link))
