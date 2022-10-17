@@ -17,6 +17,8 @@ def hbnb():
 
 @app.route('/c/<text>', strict_slashes=False)
 def func_c(text):
+    """ a script that starts a Flask web application"""
+    text = text.replace('_', ' ')
     return 'C {0}'.format(text)
 
 
