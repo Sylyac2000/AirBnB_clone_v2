@@ -27,7 +27,7 @@ def func_c(text):
 def func_python(text="is cool"):
     """ Returns Python followed by the value of the text """
     text = text.replace('_', ' ')
-    return 'Python  {0}'.format(text)
+    return 'Python {0}'.format(text)
 
 
 if __name__ == '__main__':
