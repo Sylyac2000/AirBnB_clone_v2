@@ -1,47 +1,35 @@
 #!/usr/bin/env bash
-#install nginx and create some Folders
+# Sets up a web server for deployment of web_static.
 
-install_nginx(){
-	apt-get  update -y &> /dev/null
-	apt-get  upgrade -y &> /dev/null
-	apt-get  install nginx -y &> /dev/null
-}
-create_folders(){
-	mkdir -p /data/
-	mkdir -p /data/web_static/
-	mkdir -p /data/web_static/releases/
-	mkdir -p /data/web_static/shared/
-	mkdir -p /data/web_static/releases/test/
-}
+apt-get update
+apt-get install -y nginx
 
-create_index(){
-	echo "Salam ALX" | sudo tee /data/web_static/releases/test/index.html >/dev/null
-}
+mkdir -p /data/web_static/releases/test/
+mkdir -p /data/web_static/shared/
+echo "Holberton School" > /data/web_static/releases/test/index.html
+ln -sf /data/web_static/releases/test/ /data/web_static/current
 
-create_symbolic(){
-	#create simbolic link(ln-s cible destination_ou_nom)
-	sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
-}
+chown -R ubuntu /data/
+chgrp -R ubuntu /data/
 
-change_owner(){
-	#Give ownership of the /data/ folder to ubuntu:ubuntu recursive
-	sudo chown -hRf ubuntu:ubuntu /data/*
-}
+printf %s "server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    add_header X-Served-By $HOSTNAME;
+    root   /var/www/html;
+    index  index.html index.htm;
+    location /hbnb_static {
+        alias /data/web_static/current;
+        index index.html index.htm;
+    }
+    location /redirect_me {
+        return 301 http://cuberule.com/;
+    }
+    error_page 404 /404.html;
+    location /404 {
+      root /var/www/html;
+      internal;
+    }
+}" > /etc/nginx/sites-available/default
 
-update_nginx_default() {
-	#Update the Nginx configuration
-	sudo sed -i '63i\\n\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n' /etc/nginx/sites-available/default
-}
-main() {
-
-	install_nginx
-	create_folders
-	create_index
-	create_symbolic
-	change_owner
-	update_nginx_default
-
-}
-main
-
-sudo service nginx restart
+service nginx restart
