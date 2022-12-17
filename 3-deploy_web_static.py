@@ -1,54 +1,74 @@
 #!/usr/bin/python3
-"""
-Fabric script to deploys archive to webservers
-Usage:
-    fab -f 3-deploy_web_static.py deploy -i my_ssh_private_key -u ubuntu
-"""
-from fabric.api import env, put, run
+# Fabfile to create and distribute an archive to a web server.
 import os.path
-from time import strftime
-env.hosts = ['3.238.247.215', '35.173.50.224']
+from datetime import datetime
+from fabric.api import env
+from fabric.api import local
+from fabric.api import put
+from fabric.api import run
 
+env.hosts = ['<IP web-01>', 'IP web-02']
 
 def do_pack():
-    """generate .tgz archive of web_static/ folder"""
-    thetime = strftime("%Y%M%d%H%M%S")
-    try:
-        local("mkdir -p versions")
-        filename = "versions/web_static_{}.tgz".format(thetime)
-        local("tar -cvzf {} web_static/".format(filename))
-        return filename
-    except Exception:
+    """Create a tar gzipped archive of the directory web_static."""
+    dt = datetime.utcnow()
+    file = "versions/web_static_{}{}{}{}{}{}.tgz".format(dt.year,
+                                                         dt.month,
+                                                         dt.day,
+                                                         dt.hour,
+                                                         dt.minute,
+                                                         dt.second)
+    if os.path.isdir("versions") is False:
+        if local("mkdir -p versions").failed is True:
+            return None
+    if local("tar -cvzf {} web_static".format(file)).failed is True:
         return None
+    return file
 
 
 def do_deploy(archive_path):
-    """
-    Deploy archive to web server
+    """Distributes an archive to a web server.
+    Args:
+        archive_path (str): The path of the archive to distribute.
+    Returns:
+        If the file doesn't exist at archive_path or an error occurs - False.
+        Otherwise - True.
     """
     if os.path.isfile(archive_path) is False:
         return False
-    try:
-        thefilename = archive_path.split("/")[-1]
-        no_exten = thefilename.split(".")[0]
-        path_no_exten = "/data/web_static/releases/{}/".format(no_exten)
-        symbolic_link = "/data/web_static/current"
-        put(archive_path, "/tmp/")
-        run("mkdir -p {}".format(path_no_exten))
-        run("tar -xzf /tmp/{} -C {}".format(thefilename, path_no_exten))
-        run("rm /tmp/{}".format(thefilename))
-        run("mv {}web_static/* {}".format(path_no_exten, path_no_exten))
-        run("rm -rf {}web_static".format(path_no_exten))
-        run("rm -rf {}".format(symbolic_link))
-        run("ln -s {} {}".format(path_no_exten, symbolic_link))
-        return True
-    except Exception:
+    file = archive_path.split("/")[-1]
+    name = file.split(".")[0]
+
+    if put(archive_path, "/tmp/{}".format(file)).failed is True:
         return False
+    if run("rm -rf /data/web_static/releases/{}/".
+           format(name)).failed is True:
+        return False
+    if run("mkdir -p /data/web_static/releases/{}/".
+           format(name)).failed is True:
+        return False
+    if run("tar -xzf /tmp/{} -C /data/web_static/releases/{}/".
+           format(file, name)).failed is True:
+        return False
+    if run("rm /tmp/{}".format(file)).failed is True:
+        return False
+    if run("mv /data/web_static/releases/{}/web_static/* "
+           "/data/web_static/releases/{}/".format(name, name)).failed is True:
+        return False
+    if run("rm -rf /data/web_static/releases/{}/web_static".
+           format(name)).failed is True:
+        return False
+    if run("rm -rf /data/web_static/current").failed is True:
+        return False
+    if run("ln -s /data/web_static/releases/{}/ /data/web_static/current".
+           format(name)).failed is True:
+        return False
+    return True
 
 
 def deploy():
-    archive_path = do_pack()
-    if archive_path is None:
+    """Create and distribute an archive to a web server."""
+    file = do_pack()
+    if file is None:
         return False
-    success = do_deploy(archive_path)
-    return success
+    return do_deploy(file)
